@@ -18,7 +18,9 @@ everything that happens in the `newsite` script.
 
 ## Using It
 Place the script(s) in your desired script location like `/usr/local/bin` or wherever
-your heart desires. When running the script DO NOT include the `www` in front of
+your heart desires. Make sure the scripts are executable using your preferred file modes `chmod 755 newsite`
+
+When running the script DO NOT include the `www` in front of
 the URL, but subdomains are perfectly acceptable.
 
 Script breakdowns:
