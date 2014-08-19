@@ -48,7 +48,7 @@ $ removesite fubar.com
 ### newsite
 
 1. The script prompts you if the URL should include a `www.` prefix to the
-passed in url. Answering yes adds both the URL submitted and the www.<url> to the
+passed in url. Answering yes adds both the `<url>` and the `www.<url>` to the
 config.
 2. The script creates the nginx config file in `/etc/nginx/sites-available/`
 from the respective site-type template.
