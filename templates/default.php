@@ -1,0 +1,26 @@
+# Nginx config for <%url%> generic PHP site.
+#
+server {
+    listen 80;
+    server_name <%url%> <%www%>;
+
+    root  /srv/www/<%url%>/public_html;
+    index index.php;
+
+    access_log /srv/www/<%url%>/logs/access.log;
+    error_log  /srv/www/<%url%>/logs/error.log;
+
+    location / {
+        try_files $uri $uri/ /index.php$is_args$args;
+    }
+
+    # pass the PHP scripts to FastCGI server listening on /var/run/php5-fpm.sock
+    location ~ \.php$ {
+        try_files $uri /index.php =404;
+        fastcgi_pass unix:/var/run/php5-fpm.sock;
+        fastcgi_index index.php;
+        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+}

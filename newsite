@@ -37,13 +37,24 @@ new_conf="$sites_available/$site"
 cp $sites_available/default.$site_type $new_conf
 
 # replace the values in the new file
-sed -i "/^##/d" $new_conf
 sed -i "s/<%url%>/$site/g" $new_conf
+
+# check if we should add a www. prefix to the URL
+www_prompt="Add 'www.' prefix to URL in config file?"
+read -p "$www_prompt [y/N]" www_response
+
+if [[ "$www_response" = "y" || "$www_response" = "Y" ]] ; then
+    sed -i "s/<%www%>/www.$site/g" $new_conf
+    printf "%s\n" "Added www.$site to config file."
+else
+    sed -i "s/\s<%www%>//g" $new_conf
+    printf "%s\n" "Did not add www.$site to config file."
+fi
 
 # create the root directory for the site
 if [[ ! -d $doc_root ]] ; then
     mkdir -p $doc_root
-    printf "%s\n" "Creating root directory: $doc_root"
+    printf "%s\n" "Created root directory: $doc_root"
 else
     printf "%s\n" "Root directory exists: $doc_root"
 fi
@@ -52,7 +63,7 @@ fi
 log_dir="/srv/www/$site/logs"
 if [[ ! -d $log_dir ]] ; then
     mkdir $log_dir
-    printf "%s\n" "Creating log directory: $log_dir"
+    printf "%s\n" "Created log directory: $log_dir"
 else
     printf "%s\n" "Log directory exists: $log_dir"
 fi
@@ -64,17 +75,14 @@ nginx_ensite $site
 reload_prompt="Reload nginx?"
 read -p "$reload_prompt [y/N]" reload_response
 
-if [[ -z "$reload_response" ]] ; then
-    printf "%s\n" "Not reloading nginx"
+if [[ "$reload_response" = "y" || "$reload_response" = "Y" ]] ; then
+    nginx_out=$(service nginx reload)
+    printf "%s\n" "$nginx_out"
 else
-    if [[ "$reload_response" = "y" || "$reload_response" = "Y" ]] ; then
-        nginx_out=$(service nginx reload)
-        printf "%s\n" "$nginx_out"
-    fi
+    printf "%s\n" "Did not reload nginx."
 fi
 
 # reminder message to add the DNS records for this site
 printf "\n%s\n" "Donezo. Don't forget to create the DNS records for this new site."
 
-# donezo
 exit

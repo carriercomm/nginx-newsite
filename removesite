@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Remove a site from the server... this can be dangerous, don't screw it up.
+#
+# @author JohnG <john.gieselmann@upsync.com>
+#
+# @param str $1 The name of the site to remove.
+
+# make sure we at least have the site name
+if [[ -z $1 ]] ; then
+    printf "%s\n\n" "Usage: removesite <url>"
+    printf "%s\n" "Ex: removesite jam.peopleproductions.com"
+    exit
+else
+    site="$1"
+fi
+
+# some needed variables
+sites="/srv/www"
+sites_available="/etc/nginx/sites-available"
+
+# First, disable the site
+dissite_out=$(nginx_dissite $site)
+
+# only prompt for reloading nginx if the site was enabled
+if [[ ! $dissite_out =~ "doesn't exist" ]] ; then
+    printf "%s\n" "$dissite_out"
+
+    # check if we should reload nginx
+    reload_prompt="Reload nginx?"
+    read -p "$reload_prompt [y/N]" reload_response
+
+    if [[ -z "$reload_response" ]] ; then
+        printf "%s\n" "Did not reload nginx."
+    else
+        if [[ "$reload_response" = "y" || "$reload_response" = "Y" ]] ; then
+            nginx_out=$(service nginx reload)
+            printf "%s\n" "$nginx_out"
+        fi
+    fi
+
+fi
+
+# check if the site directory exists and prompt for removal if it does
+doc_root="$sites/$site"
+config_file="$sites_available/$site"
+if [[ -d $doc_root || -e $config_file ]] ; then
+
+    remove_prompt="Remove site directory and config file? WARNING: This is one diddle you can't undo..."
+    read -p "$remove_prompt [y/N]" remove_response
+
+    if [[ "$remove_response" = "y" || "$remove_response" = "Y" ]] ; then
+        printf "%s\n" "Removed site directory and config."
+        rm -rf $sites/$site
+        rm -f /etc/nginx/sites-available/$site
+    else
+        printf "%s\n" "Did not remove site directory or config file."
+    fi
+fi
+
+# reminder message to remove the DNS records for this site
+printf "\n%s\n" "Donezo. Don't forget to remove the DNS records for this site."
+
+exit

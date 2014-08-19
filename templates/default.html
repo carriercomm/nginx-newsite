@@ -1,0 +1,12 @@
+# Nginx config for <%url%> HTML site.
+#
+server {
+    listen 80;
+    server_name <%url%> <%www%>;
+    access_log /srv/www/<%url%>/logs/access.log;
+
+    location / {
+        root /srv/www/<%url%>/public_html;
+        index index.html;
+    }
+}
