@@ -1,21 +1,20 @@
 #!/bin/bash
 
-# A little script to create a new site in nginx.
+# A little script to create a new site
 #
-# @author JohnG <john.gieselmann@gmail.com>
+# @author JohnG <john.gieselmann@upsync.com>
 #
 # @param str $1 The new domain name including the TLD.
-#
-# @param str $2 The optional site type [html | laravel] If blank, it defaults
-# to html.
+# @param str $2 The optional site directory. If blank, it will default to
+# /srv/www/<new domain name>/public_html/
 
 # make sure we at least have the new domain name
 if [[ -z $1 ]] ; then
     printf "%s\n\n" "Usage: newsite <domain_name.tld> <site-type>"
     printf "%s\n" "Ex: newsite jam.com laravel"
     printf "%s\n" " - jam.com will be inserted as the nginx server_name"
-    printf "%s\n" " - site type [html | laravel] will determine the default config file used. If none is defined, html is used."
-    exit
+    printf "%s\n" " - site type [html | laravel | php] will determine the default config file used. If none is defined, html is used."
+    exit 1
 else
     site="$1"
 fi
@@ -27,6 +26,9 @@ doc_root="$sites/$site/public_html"
 # set the default config file
 if [[ -z $2 ]] ; then
     site_type="html"
+elif [[ ! "$2" == "html" && ! "$2" == "php" && ! "$2" == "laravel" ]] ; then
+    printf "%s\n" "ERROR: Not an allowed site type [html | php | laravel]"
+    exit 1
 else
     site_type="$2"
 fi
@@ -85,4 +87,4 @@ fi
 # reminder message to add the DNS records for this site
 printf "\n%s\n" "Donezo. Don't forget to create the DNS records for this new site."
 
-exit
+exit 0
